@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Project;
+use App\Mail\ProjectCreated;
 
 class ProjectsController extends Controller
 {
@@ -13,9 +14,10 @@ class ProjectsController extends Controller
     }
 
     public function index() {
-        $projects = Project::where('owner_id', auth()->id())->get();
 
-        return view('projects.index', compact('projects'));
+        return view('projects.index', [
+            'projects' => auth()->user()->projects
+        ]);
     }
 
     public function create() {
@@ -38,6 +40,11 @@ class ProjectsController extends Controller
 
     public function update(Project $project)
     {
+        $attributes = request()->validate([
+            'title' => 'required',
+            'description' => 'required'
+        ]);
+
         $project->update(request(['title', 'description']));
 
         return redirect('/projects');
